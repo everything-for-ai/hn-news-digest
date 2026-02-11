@@ -17,16 +17,11 @@ import os
 OPML_PATH = "/root/.openclaw/workspace/hn-popular-blogs-2025.opml"
 STATE_PATH = "/root/.openclaw/workspace/skills/hn-news-digest/state.json"
 CONFIG_PATH = "/root/.openclaw/workspace/skills/hn-news-digest/config.json"
-MAX_ARTICLES = 20  # 每日推送文章数
+MAX_ARTICLES = 20
 TIMEOUT = 5
 
-# 飞书配置
-FEISHU_APP_ID = "cli_a90aa8df59bbdbc9"
-FEISHU_USER_ID = "ou_a44cdd1c2064d3c9c22242b61ff8b926"
+# 飞书配置（敏感信息从配置读取）
 FEISHU_SECRET_PATH = "~/.openclaw/secrets/feishu_app_secret"
-
-# 语言配置 (zh = 中文, en = 英文)
-LANGUAGE = "zh"
 
 # 中英文文本模板
 TEXTS = {
@@ -72,7 +67,7 @@ TEXTS = {
     }
 }
 
-# 活跃源列表（按优先级）
+# 优先级源列表
 PRIORITY_SOURCES = [
     "simonwillison.net", "krebsonsecurity.com", "paulgraham.com",
     "daringfireball.net", "lcamtuf.substack.com", "overreacted.io",
@@ -83,6 +78,9 @@ PRIORITY_SOURCES = [
     "rachelbythebay.com", "steveblank.com", "troyhunt.com",
     "righto.com", "dynomight.net", "geohot.github.io",
 ]
+
+# 全局语言设置
+LANGUAGE = "zh"
 
 
 def t(key, **kwargs):
@@ -117,7 +115,6 @@ def load_sources(limit=30):
                 "htmlUrl": outline.get("htmlUrl", "")
             })
     
-    # 按优先级排序
     prioritized = []
     others = []
     for s in all_sources:
@@ -126,9 +123,7 @@ def load_sources(limit=30):
         else:
             others.append(s)
     
-    # 优先源放前面
     prioritized.sort(key=lambda x: PRIORITY_SOURCES.index(x["title"]) if x["title"] in PRIORITY_SOURCES else 999)
-    
     return (prioritized + others)[:limit]
 
 
@@ -191,17 +186,31 @@ def generate_digest(articles, source_count):
     return "\n".join(lines)
 
 
-def send_feishu(text):
+def send_feishu(text, config):
     """推送到飞书"""
+    if not config.get("feishu_enabled", False):
+        print("⏭️ 飞书未启用，跳过推送")
+        return False
+    
     print(t("feishu_pushing"))
     
     try:
-        with open(os.path.expanduser(FEISHU_SECRET_PATH)) as f:
-            secret = f.read().strip()
+        # 从配置文件读取敏感信息
+        feishu_config = config.get("feishu", {})
+        app_id = feishu_config.get("app_id")
+        user_id = feishu_config.get("user_id")
+        app_secret_path = os.path.expanduser(feishu_config.get("secret_path", FEISHU_SECRET_PATH))
+        
+        if not app_id or not user_id:
+            print(t("feishu_error", error="Missing app_id or user_id in config"))
+            return False
+        
+        with open(app_secret_path) as f:
+            app_secret = f.read().strip()
         
         # 获取 token
         url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
-        req = Request(url, data=json.dumps({"app_id": FEISHU_APP_ID, "app_secret": secret}).encode(),
+        req = Request(url, data=json.dumps({"app_id": app_id, "app_secret": app_secret}).encode(),
                      headers={"Content-Type": "application/json"})
         with urlopen(req, timeout=TIMEOUT) as resp:
             token = json.loads(resp.read().decode()).get("tenant_access_token")
@@ -211,9 +220,9 @@ def send_feishu(text):
             return False
         
         # 发送消息
-        msg_url = f"https://open.feishu.cn/open-apis/im/v1/messages?receive_id={FEISHU_USER_ID}&receive_id_type=open_id"
+        msg_url = f"https://open.feishu.cn/open-apis/im/v1/messages?receive_id={user_id}&receive_id_type=open_id"
         msg_data = json.dumps({
-            "receive_id": FEISHU_USER_ID,
+            "receive_id": user_id,
             "msg_type": "text",
             "content": json.dumps({"text": text[:7000]})
         })
@@ -267,7 +276,7 @@ def main():
     print(t("saved", path=output))
     
     # 飞书推送
-    send_feishu(digest)
+    send_feishu(digest, config)
     
     # 保存状态
     with open(STATE_PATH, "w") as f:

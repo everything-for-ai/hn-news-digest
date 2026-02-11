@@ -1,5 +1,11 @@
 {
     "language": "zh",
     "max_articles": 20,
-    "days_limit": 7
+    "days_limit": 7,
+    "feishu_enabled": true,
+    "feishu": {
+        "app_id": "your_feishu_app_id",
+        "user_id": "your_feishu_user_id",
+        "secret_path": "~/.openclaw/secrets/feishu_app_secret"
+    }
 }

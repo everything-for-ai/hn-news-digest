@@ -72,13 +72,14 @@ hn-news-digest/
 # 创建配置目录
 mkdir -p ~/.openclaw/secrets
 
-# 保存飞书 App Secret
+# 保存飞书 App Secret（从飞书开放平台获取）
 echo "your_feishu_app_secret" > ~/.openclaw/secrets/feishu_app_secret
 ```
 
 飞书配置说明：
-- **App ID**: `cli_a90aa8df59bbdbc9`
-- **User ID**: `ou_a44cdd1c2064d3c9c22242b61ff8b926`
+- **App ID**: 从飞书开放平台获取
+- **User ID**: 从飞书开放平台获取
+- **App Secret**: 保存到 `~/.openclaw/secrets/feishu_app_secret`
 
 ## 🔧 定时任务
 
