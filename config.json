@@ -3,9 +3,13 @@
     "max_articles": 20,
     "days_limit": 7,
     "feishu_enabled": true,
+    "youdao": {
+        "app_key": "",
+        "app_secret": ""
+    },
     "feishu": {
-        "app_id": "your_feishu_app_id",
-        "user_id": "your_feishu_user_id",
+        "app_id": "cli_a90aa8df59bbdbc9",
+        "user_id": "ou_a44cdd1c2064d3c9c22242b61ff8b926",
         "secret_path": "~/.openclaw/secrets/feishu_app_secret"
     }
 }

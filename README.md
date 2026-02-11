@@ -60,9 +60,37 @@ hn-news-digest/
 {
     "language": "zh",      // "zh" = 中文, "en" = English
     "max_articles": 20,    // 每日推送文章数
-    "days_limit": 7        // 只抓取 N 天内的文章
+    "days_limit": 7,      // 只抓取 N 天内的文章
+    "feishu_enabled": true,  // 是否推送到飞书
+    "youdao": {            // 有道翻译配置（可选）
+        "app_key": "",
+        "app_secret": ""
+    },
+    "feishu": {
+        "app_id": "",
+        "user_id": "",
+        "secret_path": "~/.openclaw/secrets/feishu_app_secret"
+    }
 }
 ```
+
+### 🌐 有道翻译（可选）
+
+设置后文章标题会自动翻译成中文：
+
+1. 打开 [有道开放平台](https://ai.youdao.com/console/group/order.html)
+2. 注册账号并创建应用
+3. 获取 **App Key** 和 **App Secret**
+4. 编辑 `config.json` 填入：
+
+```json
+"youdao": {
+    "app_key": "你的appKey",
+    "app_secret": "你的appSecret"
+}
+```
+
+> 💡 免费版有道翻译每月约 100 万字符额度
 
 ### 环境变量（飞书）
 
