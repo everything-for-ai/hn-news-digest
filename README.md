@@ -78,7 +78,7 @@ hn-news-digest/
 
 设置后文章标题会自动翻译成中文：
 
-1. 打开 [有道开放平台](https://ai.youdao.com/console/group/order.html)
+1. 打开 [有道翻译开放平台](https://ai.youdao.com/doc/api.html)
 2. 注册账号并创建应用
 3. 获取 **App Key** 和 **App Secret**
 4. 编辑 `config.json` 填入：
